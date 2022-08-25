@@ -20,6 +20,8 @@ void setDesiredOrientation(double desired_angle_radians);
 void poseCallback(const turtlesim::Pose::ConstPtr & pose_message);
 void moveGoal(turtlesim::Pose goal_pose, double distance_tolerance);
 double getDistance(double x1, double y1, double x2, double y2);
+void gridClean();
+
 
 int main(int argc, char **argv)
 {
@@ -59,14 +61,16 @@ int main(int argc, char **argv)
     // loop_rate.sleep();
     // setDesiredOrientation(degrees2radians(0));
 
-    turtlesim::Pose goal_pose;
-    goal_pose.x = 1;
-    goal_pose.y = 1;
-    goal_pose.theta = 0;
-    moveGoal(goal_pose, 0.01);
-    loop_rate.sleep();
+    // turtlesim::Pose goal_pose;
+    // goal_pose.x = 1;
+    // goal_pose.y = 1;
+    // goal_pose.theta = 0;
+    // moveGoal(goal_pose, 0.01);
+    // loop_rate.sleep();
     
-    ros::spin();
+    gridClean();
+
+    // ros::spin();
 }
 
 
@@ -102,7 +106,7 @@ void move(double speed, double distance, bool isForward)
     //t0 : current time
     double  t0 = ros::Time::now().toSec();
     double current_distance = 0;
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(100);
     do{
         velocity_publisher.publish(vel_msg);
         double t1=ros::Time::now().toSec();
@@ -138,7 +142,7 @@ void rotate(double angular_speed, double relative_angle, bool clockwise)
 
     double current_angle = 0.0;
     double t0 = ros::Time::now().toSec();
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(100);
 
     do{
         velocity_publisher.publish(vel_msg);
@@ -202,4 +206,44 @@ void moveGoal(turtlesim::Pose goal_pose, double distance_tolerance)
     vel_msg.linear.x = 0;
     vel_msg.angular.z = 0;
     velocity_publisher.publish(vel_msg);
+}
+
+void gridClean()
+{
+    ros::Rate loop(0.5);
+    turtlesim::Pose pose;
+    pose.x = 1;
+    pose.y = 1;
+    pose.theta = 0;
+    moveGoal(pose, 0.1);
+    loop.sleep();
+    // setDesiredOrientation(0);
+    // loop.sleep();
+
+    move(2,9,true);
+    loop.sleep();
+    rotate(degrees2radians(90),degrees2radians(90), false);
+    loop.sleep();
+    move(2,9,true);
+
+    rotate(degrees2radians(90),degrees2radians(90), false);
+    move(2,1,true);
+    loop.sleep();
+    rotate(degrees2radians(90),degrees2radians(90), false);
+    loop.sleep();
+    move(2,9,true);
+
+    rotate(degrees2radians(90),degrees2radians(90), true);
+    move(2,1,true);
+    loop.sleep();
+    rotate(degrees2radians(90),degrees2radians(90), true);
+    loop.sleep();
+    move(2,9,true);
+
+    rotate(degrees2radians(90),degrees2radians(90), false);
+    move(2,1,true);
+    loop.sleep();
+    rotate(degrees2radians(90),degrees2radians(90), false);
+    loop.sleep();
+    move(2,9,true);
 }
