@@ -21,6 +21,8 @@ void poseCallback(const turtlesim::Pose::ConstPtr & pose_message);
 void moveGoal(turtlesim::Pose goal_pose, double distance_tolerance);
 double getDistance(double x1, double y1, double x2, double y2);
 void gridClean();
+void spiralClean();
+void home();
 
 
 int main(int argc, char **argv)
@@ -68,7 +70,7 @@ int main(int argc, char **argv)
     // moveGoal(goal_pose, 0.01);
     // loop_rate.sleep();
     
-    gridClean();
+    spiralClean();
 
     // ros::spin();
 }
@@ -246,4 +248,53 @@ void gridClean()
     rotate(degrees2radians(90),degrees2radians(90), false);
     loop.sleep();
     move(2,9,true);
+}
+
+void spiralClean()
+{
+    geometry_msgs::Twist vel_msg;
+    double count = 0;
+
+    double constant_speed = 4;
+    double vk = 1;
+    double wk = 2;
+    double rk = 0.5;
+    ros::Rate loop(1);
+
+    do{
+        rk += 0.5;
+        vel_msg.linear.x = rk;
+        vel_msg.linear.y = 0;
+        vel_msg.linear.z = 0;
+
+        vel_msg.angular.x = 0;
+        vel_msg.angular.y = 0;
+        vel_msg.angular.z = constant_speed; //((vk)/(0.5+rk));
+
+        std::cout << "vel_msg.linear.x =" << vel_msg.linear.x << std::endl;
+        std::cout << "vel_msg.linear.y =" << vel_msg.linear.y << std::endl;
+        velocity_publisher.publish(vel_msg);
+        ros::spinOnce();
+
+        loop.sleep();
+    }while((turtlesim_pose.x<10.5)&&turtlesim_pose.y<10.5);
+    vel_msg.linear.x = 0;
+    velocity_publisher.publish(vel_msg);
+
+    home();
+}
+
+void home()
+{
+    ros::Rate loop(1);
+    turtlesim::Pose pose;
+
+    pose.x = 1;
+    pose.y = 1;
+    pose.theta = 0;
+
+    loop.sleep();
+    setDesiredOrientation(degrees2radians(90));
+    loop.sleep(); 
+
 }
