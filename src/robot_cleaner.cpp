@@ -296,5 +296,6 @@ void home()
     loop.sleep();
     setDesiredOrientation(degrees2radians(90));
     loop.sleep(); 
+    move(2, turtlesim_pose.x-1, true);
 
 }
